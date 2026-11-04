@@ -1,57 +1,34 @@
 # Podcast Management API
 
-A Node.js/TypeScript API for managing podcasts, episodes, and analytics using TypeORM and AWS S3 integration following clean architecture principles.
+API em Node.js e TypeScript para gerenciar podcasts e episódios, armazenar arquivos no Amazon S3 e consultar métricas de reprodução.
 
-## Architectural Patterns
-- **Layered Architecture** with separation of concerns:
-  - Presentation Layer: Express controllers
-  - Application Layer: Services with business logic
-  - Domain Layer: Entities and interfaces
-  - Infrastructure Layer: TypeORM repositories and AWS integration
-- **Repository Pattern** for database operations
-- **DTO Pattern** using class-validator decorators
+## Funcionalidades
 
-```typescript
-// Example Entity
-@Entity()
-export class Podcast {
-  @PrimaryGeneratedColumn()
-  id: number;
+- Operações de criação, consulta, atualização e remoção de podcasts.
+- Gerenciamento de episódios e upload de arquivos para o S3.
+- Autenticação e autorização com JWT.
+- Agregação de métricas de reprodução.
+- Migrations para versionamento do esquema do banco.
 
-  @Column()
-  @IsNotEmpty()
-  title: string;
+## Arquitetura
 
-  @Column({ type: 'text' })
-  description: string;
-}
-```
+A aplicação separa responsabilidades em camadas:
 
-## Core Technologies
-| Technology       | Purpose                          |
-|------------------|----------------------------------|
-| TypeORM          | Database ORM with migrations     |
-| Express          | REST API framework               |
-| AWS SDK v3       | File storage in S3               |
-| JWT              | Authentication/Authorization     |
-| class-validator  | Request validation               |
-| Jest             | Testing framework                |
+- **Apresentação:** controllers e rotas Express.
+- **Aplicação:** serviços que coordenam a lógica de negócio.
+- **Domínio:** entidades e interfaces.
+- **Infraestrutura:** repositórios TypeORM e integração com AWS.
 
-## Key Features
-1. Podcast CRUD operations
-2. Episode file uploads to S3
-3. JWT-based authentication
-4. Listening analytics aggregation
-5. TypeORM migrations
+O acesso a dados utiliza o padrão Repository. DTOs e class-validator apoiam a validação de entrada.
 
-## Installation & Setup
-```bash
-npm install
-npm run build
-npm run typeorm migration:run
-```
+## Tecnologias
 
-## Environment Configuration
+Node.js, TypeScript, Express, TypeORM, PostgreSQL, AWS SDK v3, Amazon S3, JWT, class-validator e Jest.
+
+## Configuração
+
+Defina as variáveis necessárias no ambiente:
+
 ```env
 DATABASE_URL=postgres://user:pass@localhost:5432/podcasts
 JWT_SECRET=your_jwt_secret
@@ -60,67 +37,25 @@ AWS_SECRET_ACCESS_KEY=your_secret
 S3_BUCKET_NAME=podcast-bucket
 ```
 
-## Example Service Implementation
-```typescript
-// podcast.service.ts
-export class PodcastService {
-  constructor(
-    private podcastRepository: Repository<Podcast>,
-    private s3Client: S3Client
-  ) {}
+Instale as dependências, compile e aplique as migrations:
 
-  async createPodcast(dto: CreatePodcastDto): Promise<Podcast> {
-    const podcast = this.podcastRepository.create(dto);
-    return this.podcastRepository.save(podcast);
-  }
-}
+```bash
+npm install
+npm run build
+npm run typeorm migration:run
 ```
 
-## API Endpoint Examples
+> Use credenciais de desenvolvimento para o S3 e mantenha segredos fora do controle de versão. Consulte os scripts do projeto para iniciar a API e executar os testes.
 
-### Create Podcast (POST /podcasts)
+## Exemplo
+
 ```bash
 curl -X POST http://localhost:3000/api/podcasts \
   -H "Authorization: Bearer $JWT" \
-  -d '{
-    "title": "Dev Insights",
-    "description": "Weekly developer podcast"
-  }'
+  -H "Content-Type: application/json" \
+  -d '{"title":"Dev Insights","description":"Podcast sobre desenvolvimento"}'
 ```
 
-### Get Analytics (GET /analytics/listens)
-```typescript
-// analytics.controller.ts
-@Get('listens')
-async getListeningStats(
-  @Query() params: AnalyticsParams
-) {
-  return this.analyticsService.getListenStats(params);
-}
-```
+## Testes e documentação
 
-## Testing Strategy
-- Unit tests for services
-- Integration tests for API endpoints
-- Mocked AWS/S3 interactions
-- Test coverage reporting with Istanbul
-
-```bash
-npm test # Run test suite
-```
-
-## Deployment
-1. Database provisioning
-2. Environment configuration
-3. Migration execution
-4. PM2 process management
-
-```bash
-npm run typeorm migration:run
-npm start
-```
-
-## Documentation
-- OpenAPI 3.0 specification in /docs
-- Postman collection available
-- Entity relationship diagrams
+A estratégia descrita no projeto inclui testes unitários dos serviços, testes de integração da API e mocks para interações com o S3. A documentação OpenAPI, a coleção Postman e os diagramas estão nos diretórios correspondentes.
